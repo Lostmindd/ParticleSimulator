@@ -2,7 +2,6 @@ package com.main.particlesimulator;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.Group;
@@ -14,35 +13,22 @@ public class Main extends Application{
     }
 
     Particle circle = new Particle(250.0f, 150.0f, 30.f);
-    private final double gravity = 0.5;
+    private final double[] gravity = {0,-6};
 
     protected AnimationTimer timer = new AnimationTimer(){
         @Override
         public void handle(long now) {
-            if(circle.getCenterY() < 600-30) {
-                if (circle.momentumAngle == 0)
-                    circle.setCenterY(circle.getCenterY() + circle.momentum);
-                else
-                    circle.setCenterY(circle.getCenterY() - circle.momentum);
+            if(circle.getCenterY() < 600-60) {
+                circle.addForce(gravity);
+                circle.makeMove();
 
-                if (circle.momentum<20) {
-                    if (circle.momentumAngle == 0)
-                        circle.momentum += gravity;
-                    else
-                        circle.momentum -= gravity;
-                }
-
-            }
-            else {
-                circle.momentum *= 1 - circle.momentumLoss;
-                circle.momentumLoss -= circle.momentumLoss*0.1;
-                circle.momentum += gravity;
-                System.out.println(circle.momentum);
-                circle.momentumAngle = (circle.momentumAngle+180)%360;
-                if (circle.momentumAngle == 0)
-                    circle.setCenterY(circle.getCenterY() + circle.momentum);
-                else
-                    circle.setCenterY(circle.getCenterY() - circle.momentum);
+            } else {
+                   circle.momentum[1] = -circle.momentum[1];
+                circle.momentum[0] -= circle.momentum[0] * circle.elasticityСoefficient;
+                circle.momentum[1] -= circle.momentum[1] * circle.elasticityСoefficient;
+                circle.elasticityСoefficient += 0.01;
+                   //circle.addForce(gravity);
+                    circle.makeMove();
             }
         }
     };
