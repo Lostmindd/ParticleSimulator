@@ -2,9 +2,16 @@ package com.main.particlesimulator;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.Group;
+
+import java.io.IOException;
 
 public class Main extends Application{
 
@@ -18,36 +25,28 @@ public class Main extends Application{
     protected AnimationTimer timer = new AnimationTimer(){
         @Override
         public void handle(long now) {
-            if(circle.getCenterY() < 600-60) {
+            if(circle.getCenterY() < 400-60) {
                 circle.addForce(gravity);
                 circle.makeMove();
 
             } else {
-                   circle.momentum[1] = -circle.momentum[1];
-                circle.momentum[0] -= circle.momentum[0] * circle.elasticityСoefficient;
-                circle.momentum[1] -= circle.momentum[1] * circle.elasticityСoefficient;
-                circle.elasticityСoefficient += 0.01;
-                   //circle.addForce(gravity);
-                    circle.makeMove();
+                circle.makeReboundMove();
             }
         }
     };
 
     @Override
-    public void start(Stage stage) {
-        // set title for the stage
-        stage.setTitle("particle");
-
-        // create a Group
-        Group group = new Group(circle);
-
-        // create a scene
-        Scene scene = new Scene(group, 500, 600);
-
-        // set the scene
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fmxlLoader = new FXMLLoader(Main.class.getResource("main_window.fxml"));
+        Parent root = fmxlLoader.load();
+        Scene scene = new Scene(root, 600, 400);
+        stage.setTitle("particles simulator");
         stage.setScene(scene);
-
         stage.show();
+
+        ((Pane) root).getChildren().add(circle);
+        //root.getChildrenUnmodifiable().add(circle);
+        //((Group) scene.getRoot()).getChildren().add(circle);
 
         timer.start();
     }
