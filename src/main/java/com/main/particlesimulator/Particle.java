@@ -73,12 +73,29 @@ public class Particle extends Circle {
         if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
             return;
 
-        momentum[0] = -momentum[0];
-        momentum[1] = -momentum[1];
+        double temp = momentum[0];
+        momentum[0] = momentum[1];
+        momentum[1] = -temp;
+
+//
+//        double A = getCenterY();
+//        double B = -getCenterX();
+//        double C = getCenterX() - getCenterY();
+//        double normal0 =  A / Math.sqrt(A * A + B * B);
+//        double normal1 =  B / Math.sqrt(A * A + B * B);
+//
+//        double temp = momentum[0];
+//        momentum[0] = momentum[1] * normal0;
+//        momentum[1] = temp * normal1;
+
+
         momentum[0] -= momentum[0] * elasticityCoefficient;
         momentum[1] -= momentum[1] * elasticityCoefficient;
         elasticityCoefficient += elasticityCoefficientStep;
         //circle.addForce(gravity);
+
+
+
         makeMove();
     }
 
