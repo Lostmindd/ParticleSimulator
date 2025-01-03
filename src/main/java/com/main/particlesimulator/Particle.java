@@ -32,7 +32,7 @@ public class Particle extends Circle {
     public void makeMove() {
         if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
             return;
-        //System.out.println(momentum[1]);
+        System.out.println(momentum[1]);
         calculateResistance();
 
 //        double[] currentMomentum = getc;
@@ -48,6 +48,7 @@ public class Particle extends Circle {
             Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
 
             correctCirclePosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+            makeReboundMove(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
         }
     }
 
@@ -69,13 +70,16 @@ public class Particle extends Circle {
         setCenterY(yCircleProjection + offsetSign * getRadius() * (B / Math.sqrt(A * A + B * B)));
     }
 
-    public void makeReboundMove() {
-        if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
-            return;
+    public void makeReboundMove(double x1, double y1, double x2, double y2) {
+//        if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
+//            return;
 
-        double temp = momentum[0];
-        momentum[0] = momentum[1];
-        momentum[1] = -temp;
+        double A = y2-y1;
+        double B = x1-x2;
+        double[] lineNormal = {A / Math.sqrt(A * A + B * B), B / Math.sqrt(A * A + B * B)};
+        double dotProduct = lineNormal[0] * momentum[0] + lineNormal[1] * momentum[1];
+        momentum[0] = momentum[0] - 2 * dotProduct * lineNormal[0];
+        momentum[1] = momentum[1] - 2 * dotProduct * lineNormal[1];
 
 //
 //        double A = getCenterY();
@@ -91,12 +95,12 @@ public class Particle extends Circle {
 
         momentum[0] -= momentum[0] * elasticityCoefficient;
         momentum[1] -= momentum[1] * elasticityCoefficient;
-        elasticityCoefficient += elasticityCoefficientStep;
+//        elasticityCoefficient += elasticityCoefficientStep;
         //circle.addForce(gravity);
 
 
 
-        makeMove();
+//        makeMove();
     }
 
     public void calculateResistance() {
@@ -104,7 +108,7 @@ public class Particle extends Circle {
             momentum[1] -= momentum[1] * dragCoefficient;
     }
 
-    private double[] momentum = {3, 3};
+    private double[] momentum = {14, 3};
     private final double dragCoefficient = 0.01;
     private double elasticityCoefficient = 0.01;
     private final double elasticityCoefficientStep = 0.05;
