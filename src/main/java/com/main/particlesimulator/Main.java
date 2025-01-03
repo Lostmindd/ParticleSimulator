@@ -23,14 +23,12 @@ public class Main extends Application{
     Particle circle = new Particle(250.0f, 150.0f, 30.f);
 
     Pane rootNode;
-    private final double[] gravity = {0,-3};
 
 
     protected AnimationTimer timer = new AnimationTimer(){
         @Override
         public void handle(long now) {
 //            if(circle.checkCollisions() == null) {
-                circle.addForce(gravity);
                 circle.makeMove();
 //            } else {
 //                circle.makeReboundMove();

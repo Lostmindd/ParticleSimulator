@@ -7,21 +7,25 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
 import java.lang.reflect.Array;
+import java.util.Vector;
 
 import static java.lang.Math.*;
 
 public class Particle extends Circle {
 
+    static private final double[] gravity = {0,-3};
+
     public Particle(float v, float v1, float v2) {
         super(v, v1, v2);
     }
 
-    public Node checkCollisions() {
+    public Vector<Node> checkCollisions() {
+        Vector<Node> nodes = new Vector<Node>();
         for (Node node : getParent().getChildrenUnmodifiable()) {
             if (node != this && node.getBoundsInParent().intersects(getBoundsInParent()))
-                return node;
+                nodes.add(0, node);
         }
-        return null;
+        return nodes;
     }
 
     public void addForce(double[] force) {
@@ -32,7 +36,8 @@ public class Particle extends Circle {
     public void makeMove() {
         if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
             return;
-        System.out.println(momentum[1]);
+        addForce(gravity);
+        //System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
 
 //        double[] currentMomentum = getc;
@@ -40,9 +45,9 @@ public class Particle extends Circle {
         setCenterY(getCenterY() - momentum[1]);
         setCenterX(getCenterX() + momentum[0]);
 
-        Node node = checkCollisions();
+        Vector<Node> nodes = checkCollisions();
 
-        if (node != null) {
+        for (Node node : nodes) {
             Line line = (Line) node;
             Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
             Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
@@ -53,6 +58,7 @@ public class Particle extends Circle {
     }
 
     private  void correctCirclePosition(double x1, double y1, double x2, double y2) {
+//        System.out.println(momentum[1]);
         double xCircle = getCenterX();
         double yCircle = getCenterY();
 
@@ -95,7 +101,11 @@ public class Particle extends Circle {
 
         momentum[0] -= momentum[0] * elasticityCoefficient;
         momentum[1] -= momentum[1] * elasticityCoefficient;
-//        elasticityCoefficient += elasticityCoefficientStep;
+
+        if (elasticityCoefficient + elasticityCoefficientStep < 1)
+            elasticityCoefficient += elasticityCoefficientStep;
+        else
+            elasticityCoefficient = 1;
         //circle.addForce(gravity);
 
 
@@ -108,10 +118,10 @@ public class Particle extends Circle {
             momentum[1] -= momentum[1] * dragCoefficient;
     }
 
-    private double[] momentum = {14, 3};
+    private double[] momentum = {-10, 3};
     private final double dragCoefficient = 0.01;
     private double elasticityCoefficient = 0.01;
-    private final double elasticityCoefficientStep = 0.05;
+    private final double elasticityCoefficientStep = 0.005;
 
 
 
