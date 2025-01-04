@@ -24,15 +24,10 @@ public class Main extends Application{
 
     Pane rootNode;
 
-
     protected AnimationTimer timer = new AnimationTimer(){
         @Override
         public void handle(long now) {
-//            if(circle.checkCollisions() == null) {
                 circle.makeMove();
-//            } else {
-//                circle.makeReboundMove();
-//            }
         }
     };
 
@@ -46,9 +41,6 @@ public class Main extends Application{
         stage.show();
 
         rootNode.getChildren().add(circle);
-        //((Pane) root).getChildrenUnmodifiable()
-        //root.getChildrenUnmodifiable().add(circle);
-        //((Group) scene.getRoot()).getChildren().add(circle);
 
         timer.start();
     }

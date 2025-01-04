@@ -1,25 +1,22 @@
 package com.main.particlesimulator;
 
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
-import java.lang.reflect.Array;
 import java.util.Vector;
 
 import static java.lang.Math.*;
 
 public class Particle extends Circle {
 
-    static private final double[] gravity = {0,-3};
-
     public Particle(float v, float v1, float v2) {
         super(v, v1, v2);
     }
 
-    public Vector<Node> checkCollisions() {
+    // Возвращает все коллизии для текущей частицы
+    public Vector<Node> getCollisions() {
         Vector<Node> nodes = new Vector<Node>();
         for (Node node : getParent().getChildrenUnmodifiable()) {
             if (node != this && node.getBoundsInParent().intersects(getBoundsInParent()))
@@ -28,37 +25,42 @@ public class Particle extends Circle {
         return nodes;
     }
 
+    // Добавляет переданную силу к импульсу
     public void addForce(double[] force) {
         momentum[0] += force[0];
         momentum[1] += force[1];
     }
 
+    // Добавляет сопротивление к импульсу
+    public void calculateResistance() {
+        momentum[0] -= momentum[0] * dragCoefficient;
+        momentum[1] -= momentum[1] * dragCoefficient;
+    }
+
+    // Двигает шар по направлению импульса
     public void makeMove() {
-        if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
-            return;
         addForce(gravity);
         //System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
 
-//        double[] currentMomentum = getc;
-
         setCenterY(getCenterY() - momentum[1]);
         setCenterX(getCenterX() + momentum[0]);
 
-        Vector<Node> nodes = checkCollisions();
+        Vector<Node> collisions = getCollisions();
 
-        for (Node node : nodes) {
-            Line line = (Line) node;
+        // при столкновении корректирует положение частицы и отражает вектор
+        for (Node collision : collisions) {
+            Line line = (Line) collision;
             Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
             Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
 
-            correctCirclePosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
-            makeReboundMove(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+            correctPosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+            reflectVector(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
         }
     }
 
-    private  void correctCirclePosition(double x1, double y1, double x2, double y2) {
-//        System.out.println(momentum[1]);
+    // Корректирует положение таким образом, чтобы частица не пересекала тело, с которым столкнулось
+    private  void correctPosition(double x1, double y1, double x2, double y2) {
         double xCircle = getCenterX();
         double yCircle = getCenterY();
 
@@ -76,28 +78,15 @@ public class Particle extends Circle {
         setCenterY(yCircleProjection + offsetSign * getRadius() * (B / Math.sqrt(A * A + B * B)));
     }
 
-    public void makeReboundMove(double x1, double y1, double x2, double y2) {
-//        if (abs(momentum[0]) < 0.5 && abs(momentum[1]) < 0.5)
-//            return;
-
+    // Отражает вектор
+    private void reflectVector(double x1, double y1, double x2, double y2) {
         double A = y2-y1;
         double B = x1-x2;
         double[] lineNormal = {A / Math.sqrt(A * A + B * B), B / Math.sqrt(A * A + B * B)};
         double dotProduct = lineNormal[0] * momentum[0] + lineNormal[1] * momentum[1];
+
         momentum[0] = momentum[0] - 2 * dotProduct * lineNormal[0];
         momentum[1] = momentum[1] - 2 * dotProduct * lineNormal[1];
-
-//
-//        double A = getCenterY();
-//        double B = -getCenterX();
-//        double C = getCenterX() - getCenterY();
-//        double normal0 =  A / Math.sqrt(A * A + B * B);
-//        double normal1 =  B / Math.sqrt(A * A + B * B);
-//
-//        double temp = momentum[0];
-//        momentum[0] = momentum[1] * normal0;
-//        momentum[1] = temp * normal1;
-
 
         momentum[0] -= momentum[0] * elasticityCoefficient;
         momentum[1] -= momentum[1] * elasticityCoefficient;
@@ -106,23 +95,11 @@ public class Particle extends Circle {
             elasticityCoefficient += elasticityCoefficientStep;
         else
             elasticityCoefficient = 1;
-        //circle.addForce(gravity);
-
-
-
-//        makeMove();
     }
 
-    public void calculateResistance() {
-            momentum[0] -= momentum[0] * dragCoefficient;
-            momentum[1] -= momentum[1] * dragCoefficient;
-    }
-
-    private double[] momentum = {-10, 3};
+    private double[] momentum = {-30, 20};
     private final double dragCoefficient = 0.01;
-    private double elasticityCoefficient = 0.01;
-    private final double elasticityCoefficientStep = 0.005;
-
-
-
+    private double elasticityCoefficient = 0.005;
+    private final double elasticityCoefficientStep = 0.0005;
+    static private final double[] gravity = {0,-3};
 }
