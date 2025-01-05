@@ -25,9 +25,19 @@ public class Main extends Application{
     Pane rootNode;
 
     protected AnimationTimer timer = new AnimationTimer(){
+//        @Override
+//        public void handle(long now) {
+//                circle.makeMove();
+//
+//        }
+        private int frameCount = 0;
+
         @Override
         public void handle(long now) {
+            frameCount++;
+            if (frameCount % 1 == 0) {
                 circle.makeMove();
+            }
         }
     };
 
