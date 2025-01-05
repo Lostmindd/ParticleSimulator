@@ -45,12 +45,16 @@ public class Main extends Application{
     public void start(Stage stage) throws IOException {
         FXMLLoader fmxlLoader = new FXMLLoader(Main.class.getResource("main_window.fxml"));
         rootNode = fmxlLoader.load();
-        Scene scene = new Scene(rootNode, 600, 400);
+        Scene scene = new Scene(rootNode, 700, 400);
         stage.setTitle("particles simulator");
         stage.setScene(scene);
         stage.show();
 
-        rootNode.getChildren().add(circle);
+
+        for (Node node : rootNode.getChildren()) {
+            if (node instanceof Pane)
+                ((Pane)node).getChildren().add(circle);
+        }
 
         timer.start();
     }

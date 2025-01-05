@@ -17,7 +17,7 @@ public class Particle extends Circle {
 
     // Возвращает все коллизии для текущей частицы
     public Vector<Node> getCollisions() {
-        Vector<Node> nodes = new Vector<Node>();
+        Vector<Node> nodes = new Vector<>();
         for (Node node : getParent().getChildrenUnmodifiable()) {
             if (node != this && node.getBoundsInParent().intersects(getBoundsInParent()))
                 nodes.add(0, node);
