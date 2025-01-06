@@ -15,6 +15,13 @@ public class Particle extends Circle {
         super(v, v1, v2);
     }
 
+    public void respawn(double x, double y){
+        setCenterX(x);
+        setCenterY(y);
+        momentum[0] = 0;
+        momentum[1] = 1;
+    }
+
     // Возвращает все коллизии для текущей частицы
     public Vector<Node> getCollisions() {
         Vector<Node> nodes = new Vector<>();
@@ -39,9 +46,8 @@ public class Particle extends Circle {
 
     // Двигает шар по направлению импульса
     public void makeMove() {
-        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
-            return;
-
+//        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
+//            return;
         addForce(gravity);
         //System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
@@ -103,7 +109,7 @@ public class Particle extends Circle {
             elasticityCoefficient = 1;
     }
 
-    private double[] momentum = {-50, 50};
+    private double[] momentum = {0, 1};
     private final double dragCoefficient = 0.01;
     private double elasticityCoefficient = 0.0005;
     private double elasticityCoefficientStep = 0.00005;
