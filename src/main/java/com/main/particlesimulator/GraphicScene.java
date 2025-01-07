@@ -12,7 +12,7 @@ public class GraphicScene extends Pane{
     public GraphicScene(){
         super();
         setOnMouseReleased(event -> {
-            clearCurrentParticle();
+            releaseParticle();
         });
         setOnMouseDragged(event -> {
             if (currentParticle != null)
@@ -30,14 +30,15 @@ public class GraphicScene extends Pane{
         getChildren().add(particle);
     }
 
-    public void setCurrentParticle(Particle particle){
+    public void grabParticle(Particle particle){
         currentParticle = particle;
-        currentParticle.setGravityActivity(false);
+        currentParticle.setMovementState(true);
     }
 
-    public void clearCurrentParticle(){
+    public void releaseParticle(){
         if (currentParticle != null) {
-            currentParticle.setGravityActivity(true);
+            currentParticle.setMovementState(false);
+            currentParticle.reset();
             currentParticle = null;
         }
     }

@@ -15,15 +15,13 @@ public class Particle extends Circle {
         super(v, v1, v2);
         setOnMousePressed(event -> {
             if (parent != null)
-                parent.setCurrentParticle(this);
+                parent.grabParticle(this);
         });
     }
 
     public void setPos(double x, double y){
         setCenterX(x);
         setCenterY(y);
-        momentum[0] = 0;
-        momentum[1] = 1;
     }
 
     // Возвращает все коллизии для текущей частицы
@@ -50,15 +48,16 @@ public class Particle extends Circle {
 
     // Двигает шар по направлению импульса
     public void makeMove() {
-        if(isGravityActive)
-            addForce(gravity);
 //        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
 //            return;
-        //System.out.println(momentum[0] + "  |  " + momentum[1]);
+//        System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
 
-        setCenterY(getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius())));
-        setCenterX(getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())));
+        if(!isMovementStopped) {
+            addForce(gravity);
+            setCenterY(getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius())));
+            setCenterX(getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())));
+        }
 
         Vector<Node> collisions = getCollisions();
 
@@ -118,12 +117,19 @@ public class Particle extends Circle {
         this.parent = parent;
     }
 
-    public void setGravityActivity(boolean isGravityActive){
-        this.isGravityActive = isGravityActive;
+    public void setMovementState(boolean isMovementStopped){
+        this.isMovementStopped = isMovementStopped;
     }
 
-    private boolean isGravityActive = true;
-    private double[] momentum = {0, 1};
+    public void reset(){
+        elasticityCoefficient = 0.0005;
+        elasticityCoefficientStep = 0.00005;
+        momentum[0] = 0;
+        momentum[1] = 1;
+    }
+
+    private boolean isMovementStopped = false;
+    private final double[] momentum = {0, 1};
     private final double dragCoefficient = 0.01;
     private double elasticityCoefficient = 0.0005;
     private double elasticityCoefficientStep = 0.00005;
