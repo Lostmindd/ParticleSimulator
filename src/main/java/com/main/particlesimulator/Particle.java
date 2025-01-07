@@ -13,9 +13,13 @@ public class Particle extends Circle {
 
     public Particle(float v, float v1, float v2) {
         super(v, v1, v2);
+        setOnMousePressed(event -> {
+            if (parent != null)
+                parent.setCurrentParticle(this);
+        });
     }
 
-    public void respawn(double x, double y){
+    public void setPos(double x, double y){
         setCenterX(x);
         setCenterY(y);
         momentum[0] = 0;
@@ -46,9 +50,10 @@ public class Particle extends Circle {
 
     // Двигает шар по направлению импульса
     public void makeMove() {
+        if(isGravityActive)
+            addForce(gravity);
 //        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
 //            return;
-        addForce(gravity);
         //System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
 
@@ -109,9 +114,19 @@ public class Particle extends Circle {
             elasticityCoefficient = 1;
     }
 
+    public void setParent(GraphicScene parent) {
+        this.parent = parent;
+    }
+
+    public void setGravityActivity(boolean isGravityActive){
+        this.isGravityActive = isGravityActive;
+    }
+
+    private boolean isGravityActive = true;
     private double[] momentum = {0, 1};
     private final double dragCoefficient = 0.01;
     private double elasticityCoefficient = 0.0005;
     private double elasticityCoefficientStep = 0.00005;
     static private final double[] gravity = {0,-2};
+    private GraphicScene parent;
 }

@@ -20,7 +20,6 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main_window.fxml"));
-        //fxmlLoader.setController(this);
         Pane rootNode = fxmlLoader.load();
         Scene scene = new Scene(rootNode, 700, 400);
         stage.setTitle("Particles Simulator");

@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
+<?import com.main.particlesimulator.GraphicScene?>
 <GridPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.main.particlesimulator.MainController">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="652.0" minWidth="10.0" prefWidth="586.0" />
@@ -17,14 +18,14 @@
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <Pane fx:id="graphicField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMousePressed="#respawnParticle" prefHeight="400.0" prefWidth="585.0">
+      <GraphicScene fx:id="graphicScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="585.0">
          <children>
             <Line endX="468.0" layoutX="115.0" layoutY="14.0" startX="-100.0" strokeWidth="3.0" />
             <Line endX="468.0" layoutX="116.0" layoutY="385.0" startX="-100.0" strokeWidth="3.0" />
             <Line endX="-124.5" endY="275.5" layoutX="140.0" layoutY="110.0" startX="-125.5" startY="-95.5" strokeWidth="3.0" />
             <Line endX="100.5" endY="208.5" layoutX="484.0" layoutY="176.0" startX="99.5" startY="-161.5" strokeWidth="3.0" />
          </children>
-      </Pane>
+      </GraphicScene >
       <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
          <children>
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Stick" />
