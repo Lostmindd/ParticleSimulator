@@ -63,7 +63,7 @@ public class Particle extends Circle {
     public void makeMove() {
 //        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
 //            return;
-//        System.out.println(momentum[0] + "  |  " + momentum[1]);
+        System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
 
         if(!isMovementStopped) {
@@ -82,7 +82,8 @@ public class Particle extends Circle {
 
             correctPosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
             reflectVector(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
-            //break;
+
+            momentum[0] *= friction;
         }
     }
 
@@ -118,12 +119,8 @@ public class Particle extends Circle {
         momentum[0] -= momentum[0] * elasticityCoefficient;
         momentum[1] -= momentum[1] * elasticityCoefficient;
 
-        if (elasticityCoefficient + elasticityCoefficientStep < 1) {
-            elasticityCoefficient += elasticityCoefficientStep;
-            elasticityCoefficientStep *= 1.1;
-        }
-        else
-            elasticityCoefficient = 1;
+        elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
+
     }
 
     public void setParent(GraphicScene parent) {
@@ -135,8 +132,8 @@ public class Particle extends Circle {
     }
 
     public void reset(){
-        elasticityCoefficient = 0.0005;
-        elasticityCoefficientStep = 0.00005;
+        elasticityCoefficient = 0.05;
+        elasticityCoefficientStep = 0.0005;
         momentum[0] = 0;
         momentum[1] = 1;
     }
@@ -146,11 +143,12 @@ public class Particle extends Circle {
     }
 
     private boolean isMovementStopped = false;
-    private final double[] momentum = {0, 1};
+    private final double[] momentum = {0, 1}; // импульс
     private final double[] prevPos = {0, 0};
-    private final double dragCoefficient = 0.01;
-    private double elasticityCoefficient = 0.0005;
-    private double elasticityCoefficientStep = 0.0005;
-    static private final double[] gravity = {0,-2};
+    private final double dragCoefficient = 0.03; // сопротивление среды
+    double friction = 0.8; // трение
+    private double elasticityCoefficient = 0.05; // сила упругости (возрастает при каждом контакте)
+    private double elasticityCoefficientStep = 0.1;
+    static private final double[] gravity = {0,-2}; // сила гравитации
     private GraphicScene parent;
 }

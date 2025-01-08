@@ -13,6 +13,8 @@ public class GraphicScene extends Pane{
     public GraphicScene(){
         super();
         setOnMouseReleased(event -> {
+            currentParticle.addForce(new double[]{event.getSceneX() - currentParticle.getPrevPos()[0],
+                    -event.getSceneY() + currentParticle.getPrevPos()[1]});
             releaseParticle();
         });
         setOnMouseDragged(event -> {
@@ -40,8 +42,6 @@ public class GraphicScene extends Pane{
 
     public void releaseParticle(){
         if (currentParticle != null) {
-            currentParticle.addForce(new double[]{currentParticle.getCenterX() - currentParticle.getPrevPos()[0],
-                    -currentParticle.getCenterY() + currentParticle.getPrevPos()[1]});
             currentParticle.setMovementState(false);
             currentParticle = null;
         }
