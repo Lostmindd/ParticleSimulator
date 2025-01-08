@@ -14,16 +14,20 @@ public class Particle extends Circle {
 
     public Particle(float v, float v1, float v2) {
         super(v, v1, v2);
+
+        // при нажатии на частицу хватает ее
         setOnMousePressed(event -> {
             if (parent != null)
                 parent.grabParticle(this);
         });
     }
 
+    // Устанавливает новую позицию и сохраняет предыдущую
     public void setPos(double x, double y){
         prevPos[0] = getCenterX();
         prevPos[1] = getCenterY();
 
+        // если определена родительская сцена, то не дает переместить частицу за ее пределы
         if (parent != null) {
             double parentMaxX = parent.getBoundsInParent().getWidth();
             double parentMaxY = parent.getBoundsInParent().getHeight();
@@ -63,9 +67,8 @@ public class Particle extends Circle {
     public void makeMove() {
 //        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
 //            return;
-        System.out.println(momentum[0] + "  |  " + momentum[1]);
+//        System.out.println(momentum[0] + "  |  " + momentum[1]);
         calculateResistance();
-
         if(!isMovementStopped) {
             addForce(gravity);
             setCenterY(getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius())));
@@ -73,7 +76,6 @@ public class Particle extends Circle {
         }
 
         Vector<Node> collisions = getCollisions();
-
         // при столкновении корректирует положение частицы и отражает вектор
         for (Node node : collisions) {
             Line line = (Line)node;
@@ -99,7 +101,6 @@ public class Particle extends Circle {
         double t = -(A * xCircle + B * yCircle + C) / (A * A + B * B);
         double xCircleProjection = xCircle + t * A;
         double yCircleProjection = yCircle + t * B;
-
         double offsetSign = signum(A * xCircle + B * yCircle + C);
 
         setCenterX(xCircleProjection + offsetSign * getRadius() * (A / Math.sqrt(A * A + B * B)));
@@ -123,14 +124,17 @@ public class Particle extends Circle {
 
     }
 
+    // Устанавливает родительскую сцену
     public void setParent(GraphicScene parent) {
         this.parent = parent;
     }
 
+    // Устанавливает режим перемещения (вкл/выкл)
     public void setMovementState(boolean isMovementStopped){
         this.isMovementStopped = isMovementStopped;
     }
 
+    // Сбрасывает накапливаемые параметры частицы
     public void reset(){
         elasticityCoefficient = 0.05;
         elasticityCoefficientStep = 0.0005;
@@ -138,6 +142,7 @@ public class Particle extends Circle {
         momentum[1] = 1;
     }
 
+    // Возвращает предыдущую позицию
     public double[] getPrevPos() {
         return prevPos;
     }

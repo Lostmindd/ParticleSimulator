@@ -12,12 +12,12 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
-
     @FXML
     private GraphicScene graphicScene;
 
     Particle particle = new Particle(250.0f, 150.0f, 30.f);
 
+    // Таймер обновления положения объектов сцены
     protected AnimationTimer timer = new AnimationTimer() {
         @Override
         public void handle(long now) {
@@ -27,6 +27,7 @@ public class MainController implements Initializable {
         }
     };
 
+    // Инициализация
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         graphicScene.addParticle(particle);
