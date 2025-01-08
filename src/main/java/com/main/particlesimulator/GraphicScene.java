@@ -14,11 +14,9 @@ public class GraphicScene extends Pane{
 
     public GraphicScene(){
         super();
-        // при отпускании мыши добавляет вектор последнего движения и отпускает частицу
+        // при отпускании мыши отпускает частицу
         setOnMouseReleased(event -> {
-            currentParticle.addForce(new double[]{event.getSceneX() - currentParticle.getPrevPos()[0],
-                    -event.getSceneY() + currentParticle.getPrevPos()[1]});
-            releaseParticle();
+            releaseParticle(event.getSceneX(), event.getSceneY());
         });
         // при передвижении зажатой мыши передвигает частицу, если она схвачена
         setOnMouseDragged(event -> {
@@ -46,9 +44,11 @@ public class GraphicScene extends Pane{
         currentParticle.setMovementState(true);
     }
 
-    // Отпускает частицу
-    public void releaseParticle(){
+    // Отпускает частицу и добавляет вектор последнего движения к ее ипульсу
+    public void releaseParticle(double lastPosX, double lastPosY){
         if (currentParticle != null) {
+            currentParticle.addForce(new double[]{lastPosX - currentParticle.getPrevPos()[0],
+                    -lastPosY + currentParticle.getPrevPos()[1]});
             currentParticle.setMovementState(false);
             currentParticle = null;
         }
