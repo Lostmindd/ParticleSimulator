@@ -1,5 +1,6 @@
 package com.main.particlesimulator;
 
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.shape.Circle;
@@ -20,8 +21,17 @@ public class Particle extends Circle {
     }
 
     public void setPos(double x, double y){
-        setCenterX(x);
-        setCenterY(y);
+        if (parent != null) {
+            double parentMaxX = parent.getBoundsInParent().getWidth();
+            double parentMaxY = parent.getBoundsInParent().getHeight();
+            double offset = 15 + getRadius() + 1.8;
+
+            setCenterX(Math.max(offset, Math.min(x, parentMaxX-offset))); // |+15..-15+|
+            setCenterY(Math.max(offset, Math.min(y, parentMaxY-offset))); // |+15..-15+|
+        } else {
+            setCenterX(x);
+            setCenterY(y);
+        }
     }
 
     // Возвращает все коллизии для текущей частицы
@@ -64,6 +74,7 @@ public class Particle extends Circle {
         // при столкновении корректирует положение частицы и отражает вектор
         for (Node node : collisions) {
             Line line = (Line)node;
+            System.out.println(collisions);
             Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
             Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
 
