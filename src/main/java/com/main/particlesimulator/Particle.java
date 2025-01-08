@@ -21,6 +21,9 @@ public class Particle extends Circle {
     }
 
     public void setPos(double x, double y){
+        prevPos[0] = getCenterX();
+        prevPos[1] = getCenterY();
+
         if (parent != null) {
             double parentMaxX = parent.getBoundsInParent().getWidth();
             double parentMaxY = parent.getBoundsInParent().getHeight();
@@ -74,7 +77,6 @@ public class Particle extends Circle {
         // при столкновении корректирует положение частицы и отражает вектор
         for (Node node : collisions) {
             Line line = (Line)node;
-            System.out.println(collisions);
             Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
             Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
 
@@ -139,11 +141,16 @@ public class Particle extends Circle {
         momentum[1] = 1;
     }
 
+    public double[] getPrevPos() {
+        return prevPos;
+    }
+
     private boolean isMovementStopped = false;
     private final double[] momentum = {0, 1};
+    private final double[] prevPos = {0, 0};
     private final double dragCoefficient = 0.01;
     private double elasticityCoefficient = 0.0005;
-    private double elasticityCoefficientStep = 0.00005;
+    private double elasticityCoefficientStep = 0.0005;
     static private final double[] gravity = {0,-2};
     private GraphicScene parent;
 }
