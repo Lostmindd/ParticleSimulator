@@ -9,6 +9,7 @@ import javafx.scene.shape.Line;
 import java.util.Vector;
 
 import static java.lang.Math.*;
+import static javafx.application.Platform.exit;
 
 public class Particle extends Circle {
 
@@ -45,10 +46,28 @@ public class Particle extends Circle {
     public Vector<Node> getCollisions() {
         Vector<Node> nodes = new Vector<>();
         for (Node node : getParent().getChildrenUnmodifiable()) {
-            if (node != this && node.getBoundsInParent().intersects(getBoundsInParent()))
-                nodes.add(0, node);
+            if (node != this && node.getBoundsInParent().intersects(getBoundsInParent())) {
+                if (!(node instanceof Line line))
+                    nodes.add(0, node);
+                else{
+                    Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
+                    Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
+                    double distance = getDistanceToLine(getCenterX(), getCenterY(),
+                            lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+                    if (distance < getRadius())
+                        nodes.add(0, node);
+                }
+
+            }
         }
         return nodes;
+    }
+
+    public static double getDistanceToLine(double px, double py, double x1, double y1, double x2, double y2) {
+        double A = y2 - y1;
+        double B = x1 - x2;
+        double C = x2 * y1 - x1 * y2;
+        return abs((A * px + B * py + C) / Math.sqrt(A * A + B * B));
     }
 
     // Добавляет переданную силу к импульсу
@@ -111,17 +130,26 @@ public class Particle extends Circle {
     private void reflectVector(double x1, double y1, double x2, double y2) {
         double A = y2-y1;
         double B = x1-x2;
-        double[] lineNormal = {A / Math.sqrt(A * A + B * B), B / Math.sqrt(A * A + B * B)};
+
+        double[] lineNormal = {A / Math.sqrt(A * A + B * B), -B / Math.sqrt(A * A + B * B)};
+//        System.out.println("-----");
+//        System.out.println(lineNormal[0] + "  |  " + lineNormal[1]);
+//        System.out.println("**");
+//        System.out.println(momentum[0] + "  |  " + momentum[1]);
+
         double dotProduct = lineNormal[0] * momentum[0] + lineNormal[1] * momentum[1];
 
         momentum[0] = momentum[0] - 2 * dotProduct * lineNormal[0];
         momentum[1] = momentum[1] - 2 * dotProduct * lineNormal[1];
 
-        momentum[0] -= momentum[0] * elasticityCoefficient;
-        momentum[1] -= momentum[1] * elasticityCoefficient;
+//        System.out.println(momentum[0] + "  |  " + momentum[1]);
+//        System.out.println("-----");
 
-        elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
-
+//        momentum[0] -= momentum[0] * elasticityCoefficient;
+//        momentum[1] -= momentum[1] * elasticityCoefficient;
+//
+//        elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
+        //exit();
     }
 
     // Устанавливает родительскую сцену
@@ -154,6 +182,6 @@ public class Particle extends Circle {
     double friction = 0.8; // трение
     private double elasticityCoefficient = 0.05; // сила упругости (возрастает при каждом контакте)
     private double elasticityCoefficientStep = 0.1;
-    static private final double[] gravity = {0,-2}; // сила гравитации
+    static private final double[] gravity = {0,-3}; // сила гравитации
     private GraphicScene parent;
 }

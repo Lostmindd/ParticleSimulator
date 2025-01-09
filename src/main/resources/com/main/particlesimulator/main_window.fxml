@@ -23,6 +23,10 @@
             <Line endX="15.0" endY="385.0" startX="15.0" startY="15.0" strokeWidth="3.0" />
             <Line endX="635.0" endY="385.0" startX="635.0" startY="15.0" strokeWidth="3.0" />
             <Line endX="635.0" endY="15.0" startX="15.0" startY="15.0" strokeWidth="3.0" />
+            <Line endX="64.0" endY="33.0" startX="64.0" startY="86.0" strokeWidth="3.0" />
+            <Line endX="95.0" endY="33.0" startX="95.0" startY="87.0" strokeWidth="3.0" />
+            <Line endX="438.0" endY="238.0" startX="549.0" startY="202.0" strokeWidth="3.0" />
+            <Line endX="260.0" endY="400.0" rotate="135.0" startX="260.0" startY="200.0" strokeWidth="3.0" />
          </children>
       </GraphicScene>
       <VBox prefHeight="400.0" prefWidth="116.0" GridPane.columnIndex="1">
