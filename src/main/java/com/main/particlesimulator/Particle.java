@@ -32,7 +32,7 @@ public class Particle extends Circle {
         if (parent != null) {
             double parentMaxX = parent.getBoundsInParent().getWidth();
             double parentMaxY = parent.getBoundsInParent().getHeight();
-            double offset = 15 + getRadius() + 1.8;
+            double offset = 15 + getRadius() - 2;
 
             setCenterX(Math.max(offset, Math.min(x, parentMaxX-offset))); // |+15..-15+|
             setCenterY(Math.max(offset, Math.min(y, parentMaxY-offset))); // |+15..-15+|
@@ -87,25 +87,68 @@ public class Particle extends Circle {
 //        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
 //            return;
 //        System.out.println(momentum[0] + "  |  " + momentum[1]);
+        if(isMovementStopped)
+            return;
         calculateResistance();
-        if(!isMovementStopped) {
-            addForce(gravity);
-            setCenterY(getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius())));
-            setCenterX(getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())));
-        }
+        addForce(gravity);
+//        setCenterY(getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius())));
+//        setCenterX(getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())));
+        setPos(
+                getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())),
+                getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius()))
+        );
 
         Vector<Node> collisions = getCollisions();
-        // при столкновении корректирует положение частицы и отражает вектор
-        for (Node node : collisions) {
-            Line line = (Line)node;
-            Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
-            Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
+        if (!collisions.isEmpty()) {
+            Vector<double[]> normals = new Vector<>();
 
-            correctPosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
-            reflectVector(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+            // нормали всех пересеченных прямых
+            for (Node node : collisions) {
+                if (node instanceof Line line) {
+                    Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
+                    Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
+
+                    double[] normal = calculateLineNormal(lineStartCoords.getX(), lineStartCoords.getY(),
+                            lineEndCoords.getX(), lineEndCoords.getY());
+                    normals.add(normal);
+
+                    correctPosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+                }
+            }
+
+            double[] averageNormal = calculateAverageNormal(normals);
+
+            if (averageNormal != null) {
+                reflectVector(averageNormal);
+            }
 
             momentum[0] *= friction;
         }
+    }
+
+    // нормаль для прямой
+    private double[] calculateLineNormal(double x1, double y1, double x2, double y2) {
+        double A = y2-y1;
+        double B = x1-x2;
+        double C = x2 * y1 - x1 * y2;
+
+        double normalSign = signum(A * getCenterX() + B * getCenterY() + C);
+
+        return new double[]{normalSign * A / Math.sqrt(A * A + B * B), normalSign * (-B / Math.sqrt(A * A + B * B))};
+    }
+
+    // Вычисление средней нормали
+    private double[] calculateAverageNormal(Vector<double[]> normals) {
+        if (normals.isEmpty()) return null;
+
+        double sumX = 0, sumY = 0;
+        for (double[] normal : normals) {
+            sumX += normal[0];
+            sumY += normal[1];
+        }
+
+        double length = Math.sqrt(sumX * sumX + sumY * sumY);
+        return new double[]{sumX / length, sumY / length};
     }
 
     // Корректирует положение таким образом, чтобы частица не пересекала тело, с которым столкнулось
@@ -127,28 +170,32 @@ public class Particle extends Circle {
     }
 
     // Отражает вектор
-    private void reflectVector(double x1, double y1, double x2, double y2) {
-        double A = y2-y1;
-        double B = x1-x2;
+    private void reflectVector(double[] normal) {
+//        double A = y2-y1;
+//        double B = x1-x2;
+//        double C = x2 * y1 - x1 * y2;
+//
+//        double offsetSign = signum(A * getCenterX() + B * getCenterY() + C);
+//        double[] lineNormal = {offsetSign * A / Math.sqrt(A * A + B * B), offsetSign * (-B / Math.sqrt(A * A + B * B))};
 
-        double[] lineNormal = {A / Math.sqrt(A * A + B * B), -B / Math.sqrt(A * A + B * B)};
+
 //        System.out.println("-----");
 //        System.out.println(lineNormal[0] + "  |  " + lineNormal[1]);
 //        System.out.println("**");
 //        System.out.println(momentum[0] + "  |  " + momentum[1]);
 
-        double dotProduct = lineNormal[0] * momentum[0] + lineNormal[1] * momentum[1];
+        double dotProduct = normal[0] * momentum[0] + normal[1] * momentum[1];
 
-        momentum[0] = momentum[0] - 2 * dotProduct * lineNormal[0];
-        momentum[1] = momentum[1] - 2 * dotProduct * lineNormal[1];
+        momentum[0] = momentum[0] - 2 * dotProduct * normal[0];
+        momentum[1] = momentum[1] - 2 * dotProduct * normal[1];
 
 //        System.out.println(momentum[0] + "  |  " + momentum[1]);
 //        System.out.println("-----");
 
-//        momentum[0] -= momentum[0] * elasticityCoefficient;
-//        momentum[1] -= momentum[1] * elasticityCoefficient;
-//
-//        elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
+        momentum[0] -= momentum[0] * elasticityCoefficient;
+        momentum[1] -= momentum[1] * elasticityCoefficient;
+
+        elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
         //exit();
     }
 
@@ -179,9 +226,9 @@ public class Particle extends Circle {
     private final double[] momentum = {0, 1}; // импульс
     private final double[] prevPos = {0, 0};
     private final double dragCoefficient = 0.03; // сопротивление среды
-    double friction = 0.8; // трение
+    double friction = 0.98; // трение
     private double elasticityCoefficient = 0.05; // сила упругости (возрастает при каждом контакте)
     private double elasticityCoefficientStep = 0.1;
-    static private final double[] gravity = {0,-3}; // сила гравитации
+    static private final double[] gravity = {0,-4}; // сила гравитации
     private GraphicScene parent;
 }
