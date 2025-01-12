@@ -13,7 +13,7 @@ public class NormalUtils {
 
         double normalSign = signum(A * p1 + B * p2 + C);
 
-        return new double[]{normalSign * A / Math.sqrt(A * A + B * B), normalSign * (-B / Math.sqrt(A * A + B * B))};
+        return new double[]{normalSign * A / (Math.sqrt(A * A + B * B)+0.01), normalSign * (-B / (Math.sqrt(A * A + B * B)+0.01))};
     }
 
     // Вычисляет средней нормали переданных нормалей
@@ -27,6 +27,6 @@ public class NormalUtils {
         }
 
         double length = Math.sqrt(sumX * sumX + sumY * sumY);
-        return new double[]{sumX / length, sumY / length};
+        return new double[]{sumX / (length+0.01), sumY / (length+0.01)};
     }
 }

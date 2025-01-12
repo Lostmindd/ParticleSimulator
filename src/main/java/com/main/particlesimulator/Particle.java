@@ -1,6 +1,5 @@
 package com.main.particlesimulator;
 
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.shape.Circle;
@@ -9,7 +8,6 @@ import javafx.scene.shape.Line;
 import java.util.Vector;
 
 import static java.lang.Math.*;
-import static javafx.application.Platform.exit;
 
 public class Particle extends Circle {
 
@@ -112,7 +110,10 @@ public class Particle extends Circle {
                             lineEndCoords.getX(), lineEndCoords.getY());
                     normals.add(normal);
 
-                    correctPosition(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+                    resolveCollisionWithLine(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+                } else if (node instanceof Particle particle) {
+                    normals.add(particle.getMomentum());
+                    resolveCollisionWithOtherParticle(particle);
                 }
             }
 
@@ -126,8 +127,8 @@ public class Particle extends Circle {
         }
     }
 
-    // Корректирует положение таким образом, чтобы частица не пересекала переданную прямую=
-    private  void correctPosition(double x1, double y1, double x2, double y2) {
+    // Корректирует положение таким образом, чтобы частица не пересекала переданную прямую
+    private  void resolveCollisionWithLine(double x1, double y1, double x2, double y2) {
         double xCircle = getCenterX();
         double yCircle = getCenterY();
 
@@ -157,6 +158,24 @@ public class Particle extends Circle {
         elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
     }
 
+    // Корректирует текущую частицу с переданной если они пересекаются
+    private void resolveCollisionWithOtherParticle(Particle other) {
+        double dx = other.getCenterX() - this.getCenterX();
+        double dy = other.getCenterY() - this.getCenterY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        // если частицы пересекаются, корректируем положение
+        double minDistance = this.getRadius() + other.getRadius();
+        if (distance < minDistance) {
+            double overlap = minDistance - distance;
+            double correctionX = overlap * (dx / distance) / 2;
+            double correctionY = overlap * (dy / distance) / 2;
+
+            this.setPos(this.getCenterX() - correctionX, this.getCenterY() - correctionY);
+            other.setPos(other.getCenterX() + correctionX, other.getCenterY() + correctionY);
+        }
+    }
+
     // Устанавливает родительскую сцену
     public void setParent(GraphicScene parent) {
         this.parent = parent;
@@ -178,6 +197,10 @@ public class Particle extends Circle {
     // Возвращает предыдущую позицию
     public double[] getPrevPos() {
         return prevPos;
+    }
+
+    public double[] getMomentum() {
+        return momentum;
     }
 
     private boolean isMovementStopped = false;

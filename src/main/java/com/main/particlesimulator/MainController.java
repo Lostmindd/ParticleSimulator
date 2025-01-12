@@ -16,6 +16,7 @@ public class MainController implements Initializable {
     private GraphicScene graphicScene;
 
     Particle particle = new Particle(250.0f, 150.0f, 30.f);
+    Particle particle2 = new Particle(350.0f, 300.0f, 31.f);
 
     // Таймер обновления положения объектов сцены
     protected AnimationTimer timer = new AnimationTimer() {
@@ -31,6 +32,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         graphicScene.addParticle(particle);
+        graphicScene.addParticle(particle2);
         timer.start();
     }
 }
