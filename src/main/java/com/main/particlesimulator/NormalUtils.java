@@ -16,6 +16,12 @@ public class NormalUtils {
         return new double[]{normalSign * A / (Math.sqrt(A * A + B * B)+0.01), normalSign * (-B / (Math.sqrt(A * A + B * B)+0.01))};
     }
 
+    public static double[] calculateParticleNormal(double[] momentum) {
+        momentum[0] = -momentum[0];
+        momentum[1] = -momentum[1];
+        return momentum;
+    }
+
     // Вычисляет средней нормали переданных нормалей
     public static double[] calculateAverageNormal(Vector<double[]> normals) {
         if (normals.isEmpty()) return null;

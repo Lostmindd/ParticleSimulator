@@ -89,7 +89,7 @@ public class Particle extends Circle {
         if(isMovementStopped)
             return;
         calculateResistance();
-        addForce(gravity);
+        //addForce(gravity);
         setPos(
                 getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())),
                 getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius()))
@@ -97,7 +97,8 @@ public class Particle extends Circle {
 
         Vector<Node> collisions = getCollisions();
         if (!collisions.isEmpty()) {
-            Vector<double[]> normals = new Vector<>();
+            Vector<double[]> lineNormals = new Vector<>();
+            Vector<double[]> particleNormals = new Vector<>();
 
             // нормали всех пересеченных прямых
             for (Node node : collisions) {
@@ -108,22 +109,32 @@ public class Particle extends Circle {
                     double[] normal = NormalUtils.calculateLineNormal(getCenterX(), getCenterY(),
                             lineStartCoords.getX(), lineStartCoords.getY(),
                             lineEndCoords.getX(), lineEndCoords.getY());
-                    normals.add(normal);
+                    lineNormals.add(normal);
 
                     resolveCollisionWithLine(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
                 } else if (node instanceof Particle particle) {
-                    normals.add(particle.getMomentum());
+                    particleNormals.add(particle.getMomentum());
                     resolveCollisionWithOtherParticle(particle);
                 }
             }
 
-            double[] averageNormal = NormalUtils.calculateAverageNormal(normals);
+            double[] averageLineNormals = NormalUtils.calculateAverageNormal(lineNormals);
+            double[] averageParticleNormals = NormalUtils.calculateAverageNormal(particleNormals);
 
-            if (averageNormal != null) {
-                reflectVector(averageNormal);
+            if (averageLineNormals != null) {
+                reflectVector(averageLineNormals);
+                momentum[0] *= friction;
             }
 
-            momentum[0] *= friction;
+//            if (averageParticleNormals != null) {
+//                reflectVector(averageParticleNormals);
+//                for (Node node : collisions){
+//                    if (node instanceof Particle particle) {
+//                        particle.reflectVector(averageNormal);
+//                    }
+//                }
+//            }
+
         }
     }
 
@@ -163,17 +174,41 @@ public class Particle extends Circle {
         double dx = other.getCenterX() - this.getCenterX();
         double dy = other.getCenterY() - this.getCenterY();
         double distance = Math.sqrt(dx * dx + dy * dy);
+        double normalX = dx / distance;
+        double normalY = dy / distance;
 
-        // если частицы пересекаются, корректируем положение
+        // поправка положения частиц
         double minDistance = this.getRadius() + other.getRadius();
         if (distance < minDistance) {
             double overlap = minDistance - distance;
-            double correctionX = overlap * (dx / distance) / 2;
-            double correctionY = overlap * (dy / distance) / 2;
+            double correctionX = overlap * normalX / 2;
+            double correctionY = overlap * normalY / 2;
 
             this.setPos(this.getCenterX() - correctionX, this.getCenterY() - correctionY);
             other.setPos(other.getCenterX() + correctionX, other.getCenterY() + correctionY);
         }
+
+        // относительная скорость
+        double[] relativeVelocity = {
+                other.momentum[0] - this.momentum[0],
+                other.momentum[1] - this.momentum[1]
+        };
+
+        // относительная скорость по нормали между частицами
+        double velocityAlongNormal = relativeVelocity[0] * normalX + relativeVelocity[1] * normalY;
+        if (velocityAlongNormal > 0) return; // частицы уже расходятся
+
+        // импульс текущей частицы
+        double impulse = -velocityAlongNormal;
+        impulse /= 1 / this.mass + 1 / other.mass;
+        double impulseX = impulse * normalX;
+        double impulseY = impulse * normalY;
+
+        // зименение импульсов
+        this.momentum[0] -= impulseX / this.mass;
+        this.momentum[1] -= impulseY / this.mass;
+        other.momentum[0] += impulseX / other.mass;
+        other.momentum[1] += impulseY / other.mass;
     }
 
     // Устанавливает родительскую сцену
@@ -204,7 +239,8 @@ public class Particle extends Circle {
     }
 
     private boolean isMovementStopped = false;
-    private final double[] momentum = {0, 1}; // импульс
+    private double mass = getRadius();
+    private final double[] momentum = {0, 0}; // импульс
     private final double[] prevPos = {0, 0};
     private final double dragCoefficient = 0.03; // сопротивление среды
     double friction = 0.98; // трение
