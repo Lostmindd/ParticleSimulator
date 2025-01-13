@@ -85,11 +85,10 @@ public class Particle extends Circle {
     public void makeMove() {
 //        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
 //            return;
-//        System.out.println(momentum[0] + "  |  " + momentum[1]);
         if(isMovementStopped)
             return;
         calculateResistance();
-        //addForce(gravity);
+        addForce(gravity);
         setPos(
                 getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())),
                 getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius()))
@@ -169,7 +168,7 @@ public class Particle extends Circle {
         elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
     }
 
-    // Корректирует текущую частицу с переданной если они пересекаются
+    // Корректирует положение текущей частицы с переданной если они пересекаются
     private void resolveCollisionWithOtherParticle(Particle other) {
         double dx = other.getCenterX() - this.getCenterX();
         double dy = other.getCenterY() - this.getCenterY();
@@ -188,6 +187,13 @@ public class Particle extends Circle {
             other.setPos(other.getCenterX() + correctionX, other.getCenterY() + correctionY);
         }
 
+        calculateCollisionImpulse(other, new double[]{normalX,normalY});
+    }
+
+    // Расчитывает новые импульсы для текущей частицы и переданной, если они сталкиваются.
+    // Раситывает на основе переданой частицы и переданной нормали
+    private void calculateCollisionImpulse(Particle other, double[] normal){
+
         // относительная скорость
         double[] relativeVelocity = {
                 other.momentum[0] - this.momentum[0],
@@ -195,16 +201,16 @@ public class Particle extends Circle {
         };
 
         // относительная скорость по нормали между частицами
-        double velocityAlongNormal = relativeVelocity[0] * normalX + relativeVelocity[1] * normalY;
+        double velocityAlongNormal = relativeVelocity[0] * normal[0] + relativeVelocity[1] * normal[1];
         if (velocityAlongNormal > 0) return; // частицы уже расходятся
 
         // импульс текущей частицы
         double impulse = -velocityAlongNormal;
         impulse /= 1 / this.mass + 1 / other.mass;
-        double impulseX = impulse * normalX;
-        double impulseY = impulse * normalY;
+        double impulseX = impulse * normal[0];
+        double impulseY = impulse * normal[1];
 
-        // зименение импульсов
+        // изменение импульсов
         this.momentum[0] -= impulseX / this.mass;
         this.momentum[1] -= impulseY / this.mass;
         other.momentum[0] += impulseX / other.mass;
@@ -238,14 +244,14 @@ public class Particle extends Circle {
         return momentum;
     }
 
-    private boolean isMovementStopped = false;
+    private static boolean isMovementStopped = false;
     private double mass = getRadius();
     private final double[] momentum = {0, 0}; // импульс
     private final double[] prevPos = {0, 0};
     private final double dragCoefficient = 0.03; // сопротивление среды
     double friction = 0.98; // трение
-    private double elasticityCoefficient = 0.05; // сила упругости (возрастает при каждом контакте)
-    private double elasticityCoefficientStep = 0.1;
-    static private final double[] gravity = {0,-4}; // сила гравитации
+    private double elasticityCoefficient = 0.005; // сила упругости (возрастает при каждом контакте)
+    private double elasticityCoefficientStep = 0.00005;
+    static private final double[] gravity = {0,-3}; // сила гравитации
     private GraphicScene parent;
 }

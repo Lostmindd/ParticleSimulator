@@ -25,9 +25,8 @@ public class GraphicScene extends Pane{
                     if (currentParticle != null)
                         currentParticle.setPos(event.getSceneX(), event.getSceneY());;
                     break;
-                case LINE_CREATING:
+                case PARTICLE_CREATING:
                     break;
-
             }
         });
     }
@@ -68,7 +67,7 @@ public class GraphicScene extends Pane{
 
     public enum Mode{
         PARTICLE_DRAGGING,
-        LINE_CREATING
+        PARTICLE_CREATING
     }
     Mode mode = Mode.PARTICLE_DRAGGING;
     private final Vector<Particle> particles = new Vector<>();

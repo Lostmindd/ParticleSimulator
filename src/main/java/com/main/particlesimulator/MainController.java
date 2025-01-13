@@ -15,8 +15,9 @@ public class MainController implements Initializable {
     @FXML
     private GraphicScene graphicScene;
 
-    Particle particle = new Particle(200.0f, 150.0f, 30.f);
+    Particle particle = new Particle(200.0f, 150.0f, 150.f);
     Particle particle2 = new Particle(400.0f, 340.0f, 31.f);
+    Particle particle3 = new Particle(400.0f, 340.0f, 31.f);
 
     // Таймер обновления положения объектов сцены
     protected AnimationTimer timer = new AnimationTimer() {
@@ -24,7 +25,7 @@ public class MainController implements Initializable {
         public void handle(long now) {
             for (Particle particle : graphicScene.getParticles()) {
                 particle.makeMove();
-                System.out.println( particle2.getMomentum()[0] + "  |  " +  particle2.getMomentum()[1]);
+//                System.out.println( particle2.getMomentum()[0] + "  |  " +  particle2.getMomentum()[1]);
             }
         }
     };
@@ -34,6 +35,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         graphicScene.addParticle(particle);
         graphicScene.addParticle(particle2);
+        graphicScene.addParticle(particle3);
         timer.start();
         particle.addForce(new double[]{8,0});
         particle2.addForce(new double[]{0,5});
