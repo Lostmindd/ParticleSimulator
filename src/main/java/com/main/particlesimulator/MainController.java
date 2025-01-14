@@ -37,7 +37,5 @@ public class MainController implements Initializable {
         graphicScene.addParticle(particle2);
         graphicScene.addParticle(particle3);
         timer.start();
-        particle.addForce(new double[]{8,0});
-        particle2.addForce(new double[]{0,5});
     }
 }
