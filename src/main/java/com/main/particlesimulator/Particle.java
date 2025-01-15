@@ -77,8 +77,10 @@ public class Particle extends Circle {
 
     // Добавляет сопротивление к импульсу
     public void calculateResistance() {
-        momentum[0] -= momentum[0] * dragCoefficient;
-        momentum[1] -= momentum[1] * dragCoefficient;
+        double area = Math.PI * getRadius() * getRadius(); // Площадь проекции частицы
+        double resistanceFactor = dragCoefficient * area / mass; // Учет размера и массы
+        momentum[0] -= momentum[0] * resistanceFactor;
+        momentum[1] -= momentum[1] * resistanceFactor;
     }
 
     // Двигает частицу по направлению импульса
@@ -97,7 +99,6 @@ public class Particle extends Circle {
         Vector<Node> collisions = getCollisions();
         if (!collisions.isEmpty()) {
             Vector<double[]> lineNormals = new Vector<>();
-            Vector<double[]> particleNormals = new Vector<>();
 
             // нормали всех пересеченных прямых
             for (Node node : collisions) {
@@ -112,27 +113,16 @@ public class Particle extends Circle {
 
                     resolveCollisionWithLine(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
                 } else if (node instanceof Particle particle) {
-                    particleNormals.add(particle.getMomentum());
                     resolveCollisionWithOtherParticle(particle);
                 }
             }
 
             double[] averageLineNormals = NormalUtils.calculateAverageNormal(lineNormals);
-            double[] averageParticleNormals = NormalUtils.calculateAverageNormal(particleNormals);
 
             if (averageLineNormals != null) {
                 reflectVector(averageLineNormals);
                 momentum[0] *= friction;
             }
-
-//            if (averageParticleNormals != null) {
-//                reflectVector(averageParticleNormals);
-//                for (Node node : collisions){
-//                    if (node instanceof Particle particle) {
-//                        particle.reflectVector(averageNormal);
-//                    }
-//                }
-//            }
 
         }
     }
@@ -165,7 +155,7 @@ public class Particle extends Circle {
         momentum[0] -= momentum[0] * elasticityCoefficient;
         momentum[1] -= momentum[1] * elasticityCoefficient;
 
-        elasticityCoefficient = Math.min(1, elasticityCoefficient + elasticityCoefficientStep);
+        elasticityCoefficient = Math.min(0.2, elasticityCoefficient + elasticityCoefficientStep);
     }
 
     // Корректирует положение текущей частицы с переданной если они пересекаются
@@ -230,9 +220,9 @@ public class Particle extends Circle {
     // Сбрасывает накапливаемые параметры частицы
     public void reset(){
         elasticityCoefficient = 0.05;
-        elasticityCoefficientStep = 0.0005;
+        elasticityCoefficientStep = 0.00005;
         momentum[0] = 0;
-        momentum[1] = 1;
+        momentum[1] = 0;
     }
 
     // Возвращает предыдущую позицию
@@ -245,7 +235,7 @@ public class Particle extends Circle {
     }
 
     private static boolean isMovementStopped = false;
-    private double mass = getRadius() * getRadius();
+    private double mass = Math.PI * Math.pow(getRadius(), 2);
     private final double[] momentum = {0, 0}; // импульс
     private final double[] prevPos = {0, 0};
     private final double dragCoefficient = 0.03; // сопротивление среды

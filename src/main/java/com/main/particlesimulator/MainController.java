@@ -15,7 +15,7 @@ public class MainController implements Initializable {
     @FXML
     private GraphicScene graphicScene;
 
-    Particle particle = new Particle(200.0f, 150.0f, 150.f);
+    Particle particle = new Particle(200.0f, 150.0f, 100);
     Particle particle2 = new Particle(400.0f, 340.0f, 31.f);
     Particle particle3 = new Particle(400.0f, 340.0f, 31.f);
 
