@@ -33,7 +33,7 @@ public class MainController implements Initializable {
         public void handle(long now) {
             for (Particle particle : graphicScene.getParticles()) {
                 particle.makeMove();
-//                System.out.println( particle2.getMomentum()[0] + "  |  " +  particle2.getMomentum()[1]);
+//                System.out.println( particle.getMomentum()[0] + "  |  " +  particle.getMomentum()[1]);
             }
         }
     };
@@ -42,7 +42,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gravitySlider.valueProperty().addListener((changed, oldValue, newValue) -> Particle.gravity[1] = -(double) newValue);
-        resistanceSlider.valueProperty().addListener((changed, oldValue, newValue) -> Particle.dragCoefficient = (double) newValue/100);
+        resistanceSlider.valueProperty().addListener((changed, oldValue, newValue) -> Particle.simulationDragCoefficient = (double) newValue/100);
 
         graphicScene.addParticle(particle);
         graphicScene.addParticle(particle2);
