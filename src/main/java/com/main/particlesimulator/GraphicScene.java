@@ -1,18 +1,16 @@
 package com.main.particlesimulator;
 
-import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
 public class GraphicScene extends Pane{
-
+    private final Vector<Particle> particles = new Vector<>();
+    private Particle currentParticle = null;
+    private MainController mainController = null;
     public GraphicScene(){
         super();
         // при отпускании мыши отпускает частицу
@@ -24,10 +22,11 @@ public class GraphicScene extends Pane{
                     if (currentParticle != null)
                         currentParticle.setPos(event.getSceneX(), event.getSceneY());
         });
+        // создает новыю частицу
         setOnMousePressed(event -> {
             if (event.getButton() == MouseButton.SECONDARY && mainController != null){
-                addParticle(new Particle((float) event.getSceneX(), (float) event.getSceneY(), (float) mainController.sizeSlider.getValue(),
-                        mainController.massSlider.getValue(), mainController.colorPicker.getValue()));
+                addParticle(new Particle((float) event.getSceneX(), (float) event.getSceneY(), (float) mainController.getCurrentParticleSize(),
+                        mainController.getCurrentParticleMass(), mainController.getCurrentParticleColor()));
             }
         });
     }
@@ -64,8 +63,4 @@ public class GraphicScene extends Pane{
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
-
-    private final Vector<Particle> particles = new Vector<>();
-    private Particle currentParticle = null;
-    private MainController mainController = null;
 }

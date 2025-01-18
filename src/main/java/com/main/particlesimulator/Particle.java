@@ -12,7 +12,20 @@ import java.util.Vector;
 import static java.lang.Math.*;
 
 public class Particle extends Circle {
+    private static boolean isMovementStopped = false;
+    static public final double[] gravity = {0,-2}; // сила гравитации для конкретной частицы
+    static public double simulationDragCoefficient = 0.5; // сопротивление среды в симуляции
 
+    private double mass = 30;  // масса
+    private final double[] momentum = {0, 0}; // импульс
+    private final double[] prevPos = {0, 0};  // последняя позиция
+    public double dragCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сопротивление конкретной частицы
+    private double elasticityCoefficient = 0.001; // сила упругости (возрастает при каждом контакте)
+    private double elasticityCoefficientStep = 0.005; // шаг возрастания силы упругости
+    private GraphicScene parent;
+
+
+    // Стандартное создание частицы
     public Particle(float x, float y, float radius) {
         super(x, y, radius);
 
@@ -23,6 +36,7 @@ public class Particle extends Circle {
         });
     }
 
+    // Создание частицы с учетом массы и цвета
     public Particle(float x, float y, float radius, double mass, Color color) {
         this(x, y, radius);
         this.mass = mass;
@@ -70,6 +84,7 @@ public class Particle extends Circle {
         return nodes;
     }
 
+    // Находит кратчайшее расстояние от точки до линии
     public static double getDistanceToLine(double px, double py, double x1, double y1, double x2, double y2) {
         double A = y2 - y1;
         double B = x1 - x2;
@@ -92,8 +107,6 @@ public class Particle extends Circle {
 
     // Двигает частицу по направлению импульса
     public void makeMove() {
-//        if (abs(momentum[0]) < 0.05 && abs(momentum[1]) < 0.05)
-//            return;
         if(isMovementStopped)
             return;
         addForce(gravity);
@@ -158,9 +171,7 @@ public class Particle extends Circle {
         momentum[0] = momentum[0] - 2 * dotProduct * normal[0];
         momentum[1] = momentum[1] - 2 * dotProduct * normal[1];
 
-        momentum[0] -= momentum[0] * elasticityCoefficient * -gravity[1];
-        momentum[1] -= momentum[1] * elasticityCoefficient * -gravity[1];
-        elasticityCoefficient = Math.min(0.2, elasticityCoefficient + elasticityCoefficientStep);
+        takeElasticityCoefficientStep();
     }
 
     // Корректирует положение текущей частицы с переданной если они пересекаются
@@ -212,6 +223,11 @@ public class Particle extends Circle {
         other.momentum[1] += impulseY / other.mass;
 
         // снижение испульса
+        takeElasticityCoefficientStep();
+    }
+
+    // Увеличивает эластичность
+    private void takeElasticityCoefficientStep(){
         momentum[0] -= momentum[0] * elasticityCoefficient * -gravity[1];
         momentum[1] -= momentum[1] * elasticityCoefficient * -gravity[1];
         elasticityCoefficient = Math.min(0.2, elasticityCoefficient + elasticityCoefficientStep);
@@ -224,7 +240,7 @@ public class Particle extends Circle {
 
     // Устанавливает режим перемещения (вкл/выкл)
     public void setMovementState(boolean isMovementStopped){
-        this.isMovementStopped = isMovementStopped;
+        Particle.isMovementStopped = isMovementStopped;
     }
 
     // Сбрасывает накапливаемые параметры частицы
@@ -243,15 +259,4 @@ public class Particle extends Circle {
     public double[] getMomentum() {
         return momentum;
     }
-
-    private static boolean isMovementStopped = false;
-    private double mass = 30;
-    private final double[] momentum = {0, 0}; // импульс
-    private final double[] prevPos = {0, 0};
-    public double dragCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сопротивление среды
-    private double elasticityCoefficient = 0.001; // сила упругости (возрастает при каждом контакте)
-    private double elasticityCoefficientStep = 0.005;
-    static public final double[] gravity = {0,-2}; // сила гравитации для конкретной частицы
-    public static double simulationDragCoefficient = 0.5;
-    private GraphicScene parent;
 }
