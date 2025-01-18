@@ -174,9 +174,9 @@ public class Particle extends Circle {
 
             this.setPos(this.getCenterX() - correctionX, this.getCenterY() - correctionY);
             other.setPos(other.getCenterX() + correctionX, other.getCenterY() + correctionY);
-        }
 
-        calculateCollisionImpulse(other, new double[]{normalX,normalY});
+            calculateCollisionImpulse(other, new double[]{normalX,normalY});
+        }
     }
 
     // Расчитывает новые импульсы для текущей частицы и переданной, если они сталкиваются.
@@ -237,10 +237,10 @@ public class Particle extends Circle {
     private double mass = getRadius();
     private final double[] momentum = {0, 0}; // импульс
     private final double[] prevPos = {0, 0};
-    private final double dragCoefficient = 0.03; // сопротивление среды
+    static public double dragCoefficient = 0.03; // сопротивление среды
     double friction = 0.98; // трение
     private double elasticityCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сила упругости (возрастает при каждом контакте)
     private double elasticityCoefficientStep = 0.00005;
-    private final double[] gravity = {0,-3}; // сила гравитации для конкретной частицы
+    static public final double[] gravity = {0,-3}; // сила гравитации для конкретной частицы
     private GraphicScene parent;
 }
