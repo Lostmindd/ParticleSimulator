@@ -2,6 +2,7 @@ package com.main.particlesimulator;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
@@ -22,6 +23,12 @@ public class GraphicScene extends Pane{
         setOnMouseDragged(event -> {
                     if (currentParticle != null)
                         currentParticle.setPos(event.getSceneX(), event.getSceneY());
+        });
+        setOnMousePressed(event -> {
+            if (event.getButton() == MouseButton.SECONDARY && mainController != null){
+                addParticle(new Particle((float) event.getSceneX(), (float) event.getSceneY(), (float) mainController.sizeSlider.getValue(),
+                        mainController.massSlider.getValue(), mainController.colorPicker.getValue()));
+            }
         });
     }
 
@@ -53,6 +60,12 @@ public class GraphicScene extends Pane{
             currentParticle = null;
         }
     }
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
+
     private final Vector<Particle> particles = new Vector<>();
     private Particle currentParticle = null;
+    private MainController mainController = null;
 }

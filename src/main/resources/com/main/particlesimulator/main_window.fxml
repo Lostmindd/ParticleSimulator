@@ -49,7 +49,7 @@
                   <Insets left="-5.0" />
                </padding></Slider>
             <Label text="Color:" />
-            <ColorPicker>
+            <ColorPicker fx:id="colorPicker">
                <value>
                   <Color />
                </value>

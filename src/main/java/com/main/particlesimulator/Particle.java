@@ -2,6 +2,8 @@ package com.main.particlesimulator;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
@@ -11,14 +13,20 @@ import static java.lang.Math.*;
 
 public class Particle extends Circle {
 
-    public Particle(float v, float v1, float v2) {
-        super(v, v1, v2);
+    public Particle(float x, float y, float radius) {
+        super(x, y, radius);
 
         // при нажатии на частицу хватает ее
         setOnMousePressed(event -> {
-            if (parent != null)
+            if (event.getButton() == MouseButton.PRIMARY && parent != null)
                 parent.grabParticle(this);
         });
+    }
+
+    public Particle(float x, float y, float radius, double mass, Color color) {
+        this(x, y, radius);
+        this.mass = mass;
+        setFill(color);
     }
 
     // Устанавливает новую позицию и сохраняет предыдущую
@@ -88,8 +96,8 @@ public class Particle extends Circle {
 //            return;
         if(isMovementStopped)
             return;
-        calculateResistance();
         addForce(gravity);
+        calculateResistance();
             setPos(
                     getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())),
                     getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius()))
@@ -150,9 +158,8 @@ public class Particle extends Circle {
         momentum[0] = momentum[0] - 2 * dotProduct * normal[0];
         momentum[1] = momentum[1] - 2 * dotProduct * normal[1];
 
-        momentum[0] -= momentum[0] * elasticityCoefficient;
-        momentum[1] -= momentum[1] * elasticityCoefficient;
-
+        momentum[0] -= momentum[0] * elasticityCoefficient * -gravity[1];
+        momentum[1] -= momentum[1] * elasticityCoefficient * -gravity[1];
         elasticityCoefficient = Math.min(0.2, elasticityCoefficient + elasticityCoefficientStep);
     }
 
@@ -203,6 +210,11 @@ public class Particle extends Circle {
         this.momentum[1] -= impulseY / this.mass;
         other.momentum[0] += impulseX / other.mass;
         other.momentum[1] += impulseY / other.mass;
+
+        // снижение испульса
+        momentum[0] -= momentum[0] * elasticityCoefficient * -gravity[1];
+        momentum[1] -= momentum[1] * elasticityCoefficient * -gravity[1];
+        elasticityCoefficient = Math.min(0.2, elasticityCoefficient + elasticityCoefficientStep);
     }
 
     // Устанавливает родительскую сцену
@@ -238,7 +250,7 @@ public class Particle extends Circle {
     private final double[] prevPos = {0, 0};
     public double dragCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сопротивление среды
     private double elasticityCoefficient = 0.001; // сила упругости (возрастает при каждом контакте)
-    private double elasticityCoefficientStep = 0.00005;
+    private double elasticityCoefficientStep = 0.005;
     static public final double[] gravity = {0,-2}; // сила гравитации для конкретной частицы
     public static double simulationDragCoefficient = 0.5;
     private GraphicScene parent;

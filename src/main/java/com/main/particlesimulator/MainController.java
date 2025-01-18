@@ -6,6 +6,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -17,11 +18,16 @@ public class MainController implements Initializable {
 
     @FXML
     private GraphicScene graphicScene;
-
     @FXML
     private Slider gravitySlider;
     @FXML
     private Slider resistanceSlider;
+    @FXML
+    public Slider sizeSlider;
+    @FXML
+    public Slider massSlider;
+    @FXML
+    public ColorPicker colorPicker;
 
     Particle particle = new Particle(200.0f, 150.0f, 100);
     Particle particle2 = new Particle(400.0f, 340.0f, 31.f);
@@ -33,7 +39,6 @@ public class MainController implements Initializable {
         public void handle(long now) {
             for (Particle particle : graphicScene.getParticles()) {
                 particle.makeMove();
-//                System.out.println( particle.getMomentum()[0] + "  |  " +  particle.getMomentum()[1]);
             }
         }
     };
@@ -41,6 +46,7 @@ public class MainController implements Initializable {
     // Инициализация
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        graphicScene.setMainController(this);
         gravitySlider.valueProperty().addListener((changed, oldValue, newValue) -> Particle.gravity[1] = -(double) newValue);
         resistanceSlider.valueProperty().addListener((changed, oldValue, newValue) -> Particle.simulationDragCoefficient = (double) newValue/100);
 
