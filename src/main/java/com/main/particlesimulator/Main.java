@@ -21,7 +21,8 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main_window.fxml"));
         Pane rootNode = fxmlLoader.load();
-        Scene scene = new Scene(rootNode, 850, 400);
+        Scene scene = new Scene(rootNode, 800, 500);
+        stage.setResizable(false);
         stage.setTitle("Particles Simulator");
         stage.setScene(scene);
         stage.show();

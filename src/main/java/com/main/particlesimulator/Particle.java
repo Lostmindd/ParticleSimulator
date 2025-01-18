@@ -77,7 +77,7 @@ public class Particle extends Circle {
 
     // Добавляет сопротивление к импульсу
     public void calculateResistance() {
-        double resistanceFactor = dragCoefficient * getRadius()*2/ mass;  // ПЕРЕДЕЛАТЬ
+        double resistanceFactor = dragCoefficient * getRadius() / mass;  // ПЕРЕДЕЛАТЬ
         momentum[0] -= momentum[0] * resistanceFactor;
         momentum[1] -= momentum[1] * resistanceFactor;
     }
@@ -239,8 +239,8 @@ public class Particle extends Circle {
     private final double[] prevPos = {0, 0};
     private final double dragCoefficient = 0.03; // сопротивление среды
     double friction = 0.98; // трение
-    private double elasticityCoefficient = 0.05; // сила упругости (возрастает при каждом контакте)
+    private double elasticityCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сила упругости (возрастает при каждом контакте)
     private double elasticityCoefficientStep = 0.00005;
-    private final double[] gravity = {0,-0.03*mass}; // сила гравитации для конкретной частицы  //ТОЖЕ ПЕРЕДЕЛАТЬ
+    private final double[] gravity = {0,-3}; // сила гравитации для конкретной частицы
     private GraphicScene parent;
 }
