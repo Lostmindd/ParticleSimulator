@@ -77,7 +77,7 @@ public class Particle extends Circle {
 
     // Добавляет сопротивление к импульсу
     public void calculateResistance() {
-        double resistanceFactor = dragCoefficient * getRadius() / mass;  // ПЕРЕДЕЛАТЬ
+        double resistanceFactor = Math.min(1, dragCoefficient * simulationDragCoefficient);
         momentum[0] -= momentum[0] * resistanceFactor;
         momentum[1] -= momentum[1] * resistanceFactor;
     }
@@ -90,39 +90,38 @@ public class Particle extends Circle {
             return;
         calculateResistance();
         addForce(gravity);
-        setPos(
-                getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())),
-                getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius()))
-        );
+            setPos(
+                    getCenterX() + Math.max(-getRadius(), Math.min(momentum[0], getRadius())),
+                    getCenterY() - Math.max(-getRadius(), Math.min(momentum[1], getRadius()))
+            );
 
-        Vector<Node> collisions = getCollisions();
-        if (!collisions.isEmpty()) {
-            Vector<double[]> lineNormals = new Vector<>();
+            Vector<Node> collisions = getCollisions();
+            if (!collisions.isEmpty()) {
+                Vector<double[]> lineNormals = new Vector<>();
 
-            // нормали всех пересеченных прямых
-            for (Node node : collisions) {
-                if (node instanceof Line line) {
-                    Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
-                    Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
+                // нормали всех пересеченных прямых
+                for (Node node : collisions) {
+                    if (node instanceof Line line) {
+                        Point2D lineStartCoords = line.localToScene(line.getStartX(), line.getStartY());
+                        Point2D lineEndCoords = line.localToScene(line.getEndX(), line.getEndY());
 
-                    double[] normal = NormalUtils.calculateLineNormal(getCenterX(), getCenterY(),
-                            lineStartCoords.getX(), lineStartCoords.getY(),
-                            lineEndCoords.getX(), lineEndCoords.getY());
-                    lineNormals.add(normal);
+                        double[] normal = NormalUtils.calculateLineNormal(getCenterX(), getCenterY(),
+                                lineStartCoords.getX(), lineStartCoords.getY(),
+                                lineEndCoords.getX(), lineEndCoords.getY());
+                        lineNormals.add(normal);
 
-                    resolveCollisionWithLine(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
-                } else if (node instanceof Particle particle) {
-                    resolveCollisionWithOtherParticle(particle);
+                        resolveCollisionWithLine(lineStartCoords.getX(), lineStartCoords.getY(), lineEndCoords.getX(), lineEndCoords.getY());
+                    } else if (node instanceof Particle particle) {
+                        resolveCollisionWithOtherParticle(particle);
+                    }
                 }
+
+                double[] averageLineNormals = NormalUtils.calculateAverageNormal(lineNormals);
+
+                if (averageLineNormals != null) {
+                    reflectVector(averageLineNormals);
+                    momentum[0] *= 1 + (gravity[1] / 60);
             }
-
-            double[] averageLineNormals = NormalUtils.calculateAverageNormal(lineNormals);
-
-            if (averageLineNormals != null) {
-                reflectVector(averageLineNormals);
-                momentum[0] *= friction;
-            }
-
         }
     }
 
@@ -218,7 +217,7 @@ public class Particle extends Circle {
 
     // Сбрасывает накапливаемые параметры частицы
     public void reset(){
-        elasticityCoefficient = 0.05;
+        elasticityCoefficient = 0.001;
         elasticityCoefficientStep = 0.00005;
         momentum[0] = 0;
         momentum[1] = 0;
@@ -234,13 +233,13 @@ public class Particle extends Circle {
     }
 
     private static boolean isMovementStopped = false;
-    private double mass = getRadius();
+    private double mass = 30;
     private final double[] momentum = {0, 0}; // импульс
     private final double[] prevPos = {0, 0};
-    static public double dragCoefficient = 0.03; // сопротивление среды
-    double friction = 0.98; // трение
-    private double elasticityCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сила упругости (возрастает при каждом контакте)
+    public double dragCoefficient = ((getRadius() / mass) - 0.034)/149.966; // сопротивление среды
+    private double elasticityCoefficient = 0.001; // сила упругости (возрастает при каждом контакте)
     private double elasticityCoefficientStep = 0.00005;
-    static public final double[] gravity = {0,-3}; // сила гравитации для конкретной частицы
+    static public final double[] gravity = {0,-2}; // сила гравитации для конкретной частицы
+    public static double simulationDragCoefficient = 0.5;
     private GraphicScene parent;
 }

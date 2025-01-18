@@ -20,14 +20,8 @@ public class GraphicScene extends Pane{
         });
         // при передвижении зажатой мыши передвигает частицу, если она схвачена
         setOnMouseDragged(event -> {
-            switch (mode) {
-                case PARTICLE_DRAGGING:
                     if (currentParticle != null)
-                        currentParticle.setPos(event.getSceneX(), event.getSceneY());;
-                    break;
-                case PARTICLE_CREATING:
-                    break;
-            }
+                        currentParticle.setPos(event.getSceneX(), event.getSceneY());
         });
     }
 
@@ -45,8 +39,6 @@ public class GraphicScene extends Pane{
 
     // Хватает частицу частицу
     public void grabParticle(Particle particle){
-        if (mode != Mode.PARTICLE_DRAGGING)
-            return;
         currentParticle = particle;
         currentParticle.reset();
         currentParticle.setMovementState(true);
@@ -54,9 +46,6 @@ public class GraphicScene extends Pane{
 
     // Отпускает частицу и добавляет вектор последнего движения к ее ипульсу
     public void releaseParticle(double lastPosX, double lastPosY){
-        if (mode != Mode.PARTICLE_DRAGGING)
-            return;
-
         if (currentParticle != null) {
             currentParticle.addForce(new double[]{lastPosX - currentParticle.getPrevPos()[0],
                     -lastPosY + currentParticle.getPrevPos()[1]});
@@ -64,12 +53,6 @@ public class GraphicScene extends Pane{
             currentParticle = null;
         }
     }
-
-    public enum Mode{
-        PARTICLE_DRAGGING,
-        PARTICLE_CREATING
-    }
-    Mode mode = Mode.PARTICLE_DRAGGING;
     private final Vector<Particle> particles = new Vector<>();
     private Particle currentParticle = null;
 }
